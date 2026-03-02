@@ -1,21 +1,16 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { initializeApp } from 'firebase/app';
-import { getReactNativePersistence, initializeAuth } from 'firebase/auth';
+import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBBIWK_AUR1fNKxHbtc6ZDJe2-PhHSy5oc",
-  authDomain: "omrscanner-2a2dc.firebaseapp.com",
-  projectId: "omrscanner-2a2dc",
-  storageBucket: "omrscanner-2a2dc.firebasestorage.app",
-  messagingSenderId: "815284478180",
-  appId: "1:815284478180:web:af871ab8e451bab1ceccf1"
+  apiKey: "AIzaSyDrzXvlL7b8B7P-yv3Ukq8beCkO3iBgzr4",
+  authDomain: "omrscanner2.firebaseapp.com",
+  projectId: "omrscanner2",
+  storageBucket: "omrscanner2.firebasestorage.app",
+  messagingSenderId: "562210038183",
+  appId: "1:562210038183:web:3dcd5f607d523824419682"
 };
 
 const app = initializeApp(firebaseConfig);
-
-export const auth = initializeAuth(app, {
-  persistence: getReactNativePersistence(AsyncStorage)
-});
-
+export const auth = getAuth(app);
 export const db = getFirestore(app);

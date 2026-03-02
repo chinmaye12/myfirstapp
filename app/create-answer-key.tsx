@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { addDoc, collection } from 'firebase/firestore';
 import { useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { auth, db } from '../firebaseConfig';
 
 export default function CreateAnswerKey() {
   const [subject, setSubject] = useState('');
@@ -28,12 +30,27 @@ export default function CreateAnswerKey() {
     setAnswers(updated);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (answers.includes('')) {
       Alert.alert('Error', 'Please select an answer for all questions');
       return;
     }
-    Alert.alert('Success', 'Answer key saved successfully!');
+    try {
+      const user = auth.currentUser;
+console.log('Current user:', user);
+      await addDoc(collection(db, 'answerKeys'), {
+        subject,
+        answers,
+        numQuestions: parseInt(numQuestions),
+        teacherId: user?.uid,
+        teacherEmail: user?.email,
+        createdAt: new Date(),
+      });
+      Alert.alert('Success', 'Answer key saved successfully!');
+      router.back();
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    }
   };
 
   return (
