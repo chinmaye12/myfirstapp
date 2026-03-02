@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -15,7 +16,7 @@ export default function LoginScreen() {
       Alert.alert('Invalid Password', 'Password must be at least 6 characters');
       return;
     }
-    Alert.alert('Success', 'Welcome ' + email + '!');
+    router.push('/dashboard');
   };
 
   return (
