@@ -23,7 +23,7 @@ export default function Dashboard() {
           <Ionicons name="chevron-forward" size={24} color="#999" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/view-answer-keys')}>
           <Ionicons name="folder-outline" size={40} color="#8B5CF6" />
           <View style={styles.cardText}>
             <Text style={styles.cardTitle}>Previous Answer Keys</Text>
