@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function Dashboard() {
@@ -13,7 +14,7 @@ export default function Dashboard() {
       <View style={styles.body}>
         <Text style={styles.sectionTitle}>What would you like to do?</Text>
 
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/create-answer-key')}>
           <Ionicons name="create-outline" size={40} color="#3B82F6" />
           <View style={styles.cardText}>
             <Text style={styles.cardTitle}>Create Answer Key</Text>
