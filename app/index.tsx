@@ -1,13 +1,17 @@
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { useState } from 'react';
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { auth } from '../firebaseConfig';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isRegistering, setIsRegistering] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleSubmit = async () => {
     if (!email.endsWith('@riti.ac.in')) {
       Alert.alert('Invalid Email', 'Please use your college email ending with @riti.ac.in');
       return;
@@ -16,7 +20,24 @@ export default function LoginScreen() {
       Alert.alert('Invalid Password', 'Password must be at least 6 characters');
       return;
     }
-    router.push('/dashboard');
+
+    setLoading(true);
+    try {
+      if (isRegistering) {
+        await createUserWithEmailAndPassword(auth, email, password);
+        Alert.alert('Success', 'Account created! Please login now.');
+        setIsRegistering(false);
+        setEmail('');
+        setPassword('');
+      } else {
+        await signInWithEmailAndPassword(auth, email, password);
+        router.push('/dashboard');
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,7 +54,9 @@ export default function LoginScreen() {
         </View>
 
         <Text style={styles.title}>OMR Scanner</Text>
-        <Text style={styles.subtitle}>Teacher Login</Text>
+        <Text style={styles.subtitle}>
+          {isRegistering ? 'Create Account' : 'Teacher Login'}
+        </Text>
 
         <TextInput
           style={styles.input}
@@ -42,6 +65,7 @@ export default function LoginScreen() {
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
+          autoCapitalize="none"
         />
 
         <TextInput
@@ -53,8 +77,25 @@ export default function LoginScreen() {
           onChangeText={setPassword}
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
+        <TouchableOpacity
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleSubmit}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Please wait...' : isRegistering ? 'Register' : 'Login'}
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.switchButton}
+          onPress={() => setIsRegistering(!isRegistering)}
+        >
+          <Text style={styles.switchText}>
+            {isRegistering
+              ? 'Already have an account? Login'
+              : "Don't have an account? Register"}
+          </Text>
         </TouchableOpacity>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -106,15 +147,25 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
-    shadowColor: '#1b61d1',
+    shadowColor: '#3B82F6',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 5,
   },
+  buttonDisabled: {
+    backgroundColor: '#93C5FD',
+  },
   buttonText: {
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  switchButton: {
+    marginTop: 20,
+  },
+  switchText: {
+    color: '#3B82F6',
+    fontSize: 14,
   },
 });
