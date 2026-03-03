@@ -32,7 +32,7 @@ export default function Dashboard() {
           <Ionicons name="chevron-forward" size={24} color="#999" />
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={() => router.push('/scan-omr')}>
           <Ionicons name="scan-outline" size={40} color="#10B981" />
           <View style={styles.cardText}>
             <Text style={styles.cardTitle}>Scan OMR Sheet</Text>
