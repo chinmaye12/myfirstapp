@@ -76,43 +76,53 @@ export default function ScanOMR() {
       return;
     }
     setScanning(true);
-    const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-console.log('API Key found:', apiKey ? 'YES - ' + apiKey.substring(0, 10) : 'NO - KEY IS MISSING');
 
     try {
-      const apiKey = process.env.EXPO_PUBLIC_GEMINI_API_KEY;
-      
+      const apiKey = process.env.EXPO_PUBLIC_GROQ_API_KEY;
+
       if (!apiKey) {
         Alert.alert('Error', 'API key not found');
         return;
       }
 
-      console.log('Calling Gemini API...');
-      
+      console.log('Calling Groq API...');
+
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=${apiKey}`,
+        'https://api.groq.com/openai/v1/chat/completions',
         {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
           body: JSON.stringify({
-            contents: [{
-              parts: [
-                {
-                  text: `This is an OMR answer sheet with ${selectedKey.numQuestions} questions. 
-                  Each question has options A, B, C, D. 
-                  Look at the filled/darkened bubbles and tell me which option is selected for each question.
-                  Return ONLY a JSON array like this example: ["A", "B", "C", "D", "A"] 
-                  with exactly ${selectedKey.numQuestions} items, one per question.
-                  Return nothing else, just the JSON array. No explanation, no markdown.`
-                },
-                {
-                  inline_data: {
-                    mime_type: 'image/jpeg',
-                    data: imageBase64
+            model: 'meta-llama/llama-4-scout-17b-16e-instruct',
+            messages: [
+              {
+                role: 'user',
+                content: [
+                  {
+                    type: 'text',
+                    text: `Analyze this OMR answer sheet image carefully.
+Each question has 4 circles in order: 1st circle = A, 2nd circle = B, 3rd circle = C, 4th circle = D.
+The circles may or may not have letters inside them.
+One circle per question is filled completely solid black - that is the selected answer.
+The sheet may have questions arranged in one or two columns.
+Scan every question from the first to the last in order.
+For each question identify which circle is filled solid black and return the corresponding letter.
+Return ONLY a raw JSON array with exactly ${selectedKey.numQuestions} letters.
+No explanation, no markdown, no extra text.`
+                  },
+                  {
+                    type: 'image_url',
+                    image_url: {
+                      url: `data:image/jpeg;base64,${imageBase64}`
+                    }
                   }
-                }
-              ]
-            }]
+                ]
+              }
+            ],
+            max_tokens: 500
           })
         }
       );
@@ -126,9 +136,9 @@ console.log('API Key found:', apiKey ? 'YES - ' + apiKey.substring(0, 10) : 'NO 
         return;
       }
 
-      const text = data.candidates[0].content.parts[0].text;
+      const text = data.choices[0].message.content;
       console.log('Detected text:', text);
-      
+
       const cleanText = text.replace(/```json|```/g, '').trim();
       const detectedAnswers = JSON.parse(cleanText);
 
@@ -222,7 +232,7 @@ console.log('API Key found:', apiKey ? 'YES - ' + apiKey.substring(0, 10) : 'NO 
               disabled={scanning}
             >
               <Text style={styles.buttonText}>
-                {scanning ? '⏳ Scanning...' : '🔍 Scan Now'}
+                {scanning ? 'Scanning...' : 'Scan Now'}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity style={[styles.button, styles.buttonSecondary]} onPress={() => setStep(3)}>
